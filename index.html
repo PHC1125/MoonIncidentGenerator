@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Incident Console</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #1a1a1a;
+            --console-bg: #0a0a0a;
+            --text-color: #00ff00;
+            --border-color: #333;
+            --screen-glow: 0 0 10px rgba(0, 255, 0, 0.2);
+            --alert-color: #ff0000;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: var(--primary-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .console-container {
+            background: var(--console-bg);
+            width: 95%;
+            max-width: 1400px;
+            height: 800px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            box-shadow: var(--screen-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .console-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.03) 0px,
+                rgba(0, 255, 0, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+        }
+
+        .left-panel {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--text-color);
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .console-button {
+            background: transparent;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .console-button:hover {
+            background: var(--text-color);
+            color: var(--console-bg);
+        }
+
+        .event-display {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(0, 255, 0, 0.05);
+            position: relative;
+        }
+
+        .event-title {
+            color: var(--alert-color);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .event-description {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .event-requirements {
+            color: #ffff00;
+            margin-bottom: 15px;
+        }
+
+        .event-outcome {
+            color: #00ffff;
+            margin-bottom: 15px;
+        }
+
+        .event-quote {
+            font-style: italic;
+            color: #888;
+            border-left: 2px solid var(--text-color);
+            padding-left: 10px;
+            margin-top: 20px;
+        }
+
+        .logo-space {
+            height: 100px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 255, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        .logo-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: brightness(0) saturate(100%) invert(91%) sepia(13%) saturate(989%) hue-rotate(76deg) brightness(97%) contrast(104%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--console-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-color);
+            border-radius: 5px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: var(--text-color);
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="console-container">
+        <div class="left-panel">
+            <h1 class="title">Incident Console<span class="cursor"></span></h1>
+            <div class="button-container">
+                <button class="console-button" onclick="generateDailyIncident()">
+                    Generate Daily Incident
+                </button>
+                <button class="console-button" onclick="generateOpportunity()">
+                    Generate Opportunity
+                </button>
+            </div>
+            <div class="logo-space">
+                <img src="logo.png" alt="Mission Logo" class="logo-image">
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="event-display" id="eventDisplay">
+                <div class="event-title">LUNAR INCIDENT CONSOLE READY</div>
+                <div class="event-description">Awaiting incident generation command...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       const dailyIncidents = [
+    {
+        title: "OXYGEN SHORTAGE",
+        description: "ALERT: Your primary oxygen indicators flash red. During the last airlock cycle, your supply was lower than calculated. Without immediate supplemental oxygen, your team faces a critical shortage within minutes.",
+        required: "Required: Oxygen tanks",
+        success: "Success: You quickly connect the backup oxygen tanks, restoring normal supply levels.",
+        failure: "Failure: One crew member succumbs to oxygen deprivation (dead). Others stay/return to the start point for one round to retrieve emergency oxygen supplies (each remaining members receive an oxygen tanks card).",
+        quote: "It's terrifying how fast it happens. One minute you're fine, the next... you're gasping in vacuum. Always double-check your O2. - Mission Log #184"
+    },
+    {
+        title: "SOLAR STORM",
+        description: "ALERT: Your radiation detector is screaming. A sudden solar flare has created intense radiation levels. You need immediate shelter for the next 4 hours until it passes.",
+        required: "Required: Parachute silk OR life raft",
+        success: "Success: You create a makeshift shelter and wait out the storm.",
+        failure: "Failure: One piece of your equipment gets damaged by radiation (randomly discard 1 item).",
+        quote: "The sun on the Moon isn't your friend. When a flare hits, you have minutes to find cover. - Veteran Lunar Walker"
+    },
+    {
+        title: "FATIGUE CRISIS",
+        description: "ALERT: Your team is showing signs of severe exhaustion. The constant loping motion has drained your energy. Your suits' monitors show dangerous drops in blood sugar levels.",
+        required: "Required: Food concentrate or Milk",
+        success: "Success: The concentrated nutrients revive your team's energy (if you use milk, it will be completely consumed and you cannot use it any more next time you have a fatigue crisis).",
+        failure: "Failure: Exhaustion forces an 8-hour rest period (only one person can move forward, and the rest of your team cannot move for one day).",
+        quote: "You never realize how hungry you can get until you're bouncing across the Moon in a 200-pound suit. - Mission Report #223"
+    },
+    {
+        title: "NAVIGATION CRISIS",
+        description: "ALERT: You've entered a crater field with identical features in all directions. The sun's glare is creating confusing shadows, and your sense of direction is completely lost.",
+        required: "Required: Stellar map",
+        success: "Success: Using star positions, you reorient and find the correct path.",
+        failure: "Failure: You waste precious hours going in circles (return to the start point).",
+        quote: "Everything looks the same here - endless gray desert and black sky. Without the stars, you're just guessing. - Commander Sarah Chen"
+    },
+    {
+        title: "MEDICAL EMERGENCY",
+        description: "ALERT: A team member's suit has developed an abrasion from Moon dust. The constant movement has caused a serious cut that needs immediate attention.",
+        required: "Required: First aid kit OR nylon rope (for repairs)",
+        success: "Success: You treat the injury and reinforce the suit.",
+        failure: "Failure: One injured stays and cannot move anymore (will die if teammates do not reach the mothership by the time life basic resources run out).",
+        quote: "Moon dust isn't like Earth dust. It's like tiny shards of glass, constantly wearing at your suit. - Medical Officer's Report"
+    },
+    {
+        title: "COOLING CRISIS",
+        description: "ALERT: Your suit's cooling system is struggling in the intense lunar day. Without additional coolant (water), your body temperature is rising to dangerous levels.",
+        required: "Required: Water (2L), or parachute silk, or raft",
+        success: "Success: You replenish the cooling system and regulate temperature.",
+        failure: "Failure: Heat exhaustion sets in. Mission ends.",
+        quote: "In sunlight, your suit can become an oven. Water isn't just for drinking - it's keeping you from cooking alive. - Survival Training Manual"
+    },
+    {
+        title: "COMMUNICATION CRISIS",
+        description: "ALERT: Finally within theoretical radio range, but the mother ship isn't where expected. They've had to adjust position due to terrain issues.",
+        required: "Required: FM receiver OR signal flares",
+        success: "Success: You establish contact and get updated coordinates.",
+        failure: "Failure: You miss the rendezvous point (return to previous checkpoint).",
+        quote: "The worst feeling is being so close but not knowing if you're heading toward an empty landing site. - Mission Audio Log"
+    },
+    {
+        title: "FINAL APPROACH",
+        description: "ALERT: Multiple systems are redlining after the long journey. You face:\n\nOxygen system fluctuating (need: Oxygen tanks OR rope for repairs)\nVisual contact needed with ship (need: Stellar map OR flares OR FM receiver)\nCrew member collapse (need: Water OR first aid kit OR food)",
+        required: "Required: Items for at least 2 of 3 crises",
+        success: "Success: You overcome final challenges and reach safety.",
+        failure: "Failure: So close, yet so far. Mission incomplete.",
+        quote: "The last kilometer can be the longest. Everything that can go wrong, will go wrong. - Mission Control Golden Rule"
+    }
+];
+
+const opportunities = [
+    {
+        title: "LUNAR CREVASSE",
+        description: "ALERT: A deep fissure blocks your path - too wide to jump normally but too time-consuming to circumnavigate. The smooth walls drop into darkness.",
+        choices: [
+            "1. Pistol Propulsion (only for one person):",
+            "- Jump across (+3m per shot)",
+            "- Boost raft speed (uses 5 rounds)",
+            "- Emergency brake on landing (uses 1 round)",
+            "2. Raft CO2 Propulsion (for the whole team):",
+            "- Use raft's CO2 tank for thrust",
+            "- Mark off one CO2 tank use",
+            "- Carries entire team across"
+        ],
+        required: "Required: Either .45 Caliber Pistols OR Self-Inflating Life Raft",
+        success: "Success: Either pistol recoil or CO2 thrust gets you across safely. Mark off used resources.",
+        failure: "Failure: Without propulsion or safety equipment, must backtrack to find crossing point (lose one checkpoint)."
+    },
+    {
+        title: "ABANDONED CACHE",
+        description: "ALERT: A glint of metal catches your eye - partially buried equipment from a previous expedition emerges from the regolith.",
+        choices: ["Choice: Excavate cache (takes 1 hour)"],
+        required: "Required: None",
+        success: "Success: Randomly acquire one:\n- Water (2L)\n- Food concentrate\n- Nylon rope",
+        quote: "Sometimes the Moon gives gifts. Always mark what you leave behind. - Salvage Protocol #7"
+    },
+    // Add all other opportunities similarly
+];
+
+let lastDailyIncident = null;
+let lastOpportunity = null;
+
+function getRandomEvent(events, lastEvent) {
+    let newEvent;
+    do {
+        newEvent = events[Math.floor(Math.random() * events.length)];
+    } while (events.length > 1 && newEvent === lastEvent);
+    return newEvent;
+}
+
+function displayEvent(event) {
+    const display = document.getElementById('eventDisplay');
+    let content = `
+        <div class="event-title">${event.title}</div>
+        <div class="event-description">${event.description}</div>
+    `;
+
+    if (event.choices) {
+        content += `<div class="event-description">${event.choices.join('<br>')}</div>`;
+    }
+
+    content += `<div class="event-requirements">${event.required}</div>
+                <div class="event-outcome">${event.success}</div>
+                <div class="event-outcome">${event.failure}</div>`;
+
+    if (event.quote) {
+        content += `<div class="event-quote">${event.quote}</div>`;
+    }
+
+    // Add animation effect
+    display.style.opacity = '0';
+    display.innerHTML = content;
+    setTimeout(() => {
+        display.style.opacity = '1';
+    }, 100);
+}
+
+function generateDailyIncident() {
+    const newIncident = getRandomEvent(dailyIncidents, lastDailyIncident);
+    lastDailyIncident = newIncident;
+    displayEvent(newIncident);
+}
+
+function generateOpportunity() {
+    const newOpportunity = getRandomEvent(opportunities, lastOpportunity);
+    lastOpportunity = newOpportunity;
+    displayEvent(newOpportunity);
+}
+
+// Add typewriter effect for initial message
+window.onload = function() {
+    const display = document.getElementById('eventDisplay');
+    display.innerHTML = '';
+    const text = "LUNAR INCIDENT CONSOLE READY\n\nAwaiting incident generation command...";
+    let i = 0;
+    
+    function typeWriter() {
+        if (i < text.length) {
+            display.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 50);
+        }
+    }
+    
+    typeWriter();
+};
+    </script>
+</body>
+</html>
